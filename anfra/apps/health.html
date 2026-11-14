@@ -5,8 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Data tool health</title>
   <meta name="description" content="How healthy open-source data tools are to adopt: maintainer response time, community contributions and release cadence from 12 months of GitHub activity.">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource-variable/inter@5.2.5/index.css"
-    integrity="sha384-ZTIcl2CmY0wyM9ANOhomBco7rEUIlWztf6lGcLKCocKUrIgGCsfisuZyE+hadW8K" crossorigin="anonymous">
+  <!-- Basecoat only for its combobox; everything visible is restyled with Primer tokens below. -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/basecoat-css@1.0.2/dist/basecoat.cdn.min.css"
     integrity="sha384-XWKdrxzE2X33lI8Q03C9fIbqdLWV11whVNycR2/3bMNJY73EEQOa7rmN+SeiSCor" crossorigin="anonymous">
   <script src="https://cdn.jsdelivr.net/npm/basecoat-css@1.0.2/dist/js/all.min.js"
@@ -14,127 +13,165 @@
   <script src="https://cdn.jsdelivr.net/npm/echarts@6.1.0/dist/echarts.min.js"
     integrity="sha384-C2iskrW/uPW46KzOjrvJIQo4YkV8lkD+QS0CrDN18IIPIpT/g2USu8bTP3nvmIAD" crossorigin="anonymous"></script>
   <style>
-    /* anfra tokens (DESIGN.md) on Basecoat's variables. Light is from DESIGN.md; the dark values
-       are derived from it, since DESIGN.md only lists the light theme. */
+    /* GitHub Primer tokens (light / dark), mapped onto Basecoat's variables for the combobox. */
     :root {
-      --background: oklch(0.955 0.007 88.6);          /* paper: the page */
-      --foreground: oklch(0.201 0.022 301.1);         /* ink */
-      --card: oklch(1 0 0);                           /* white: panels */
-      --card-foreground: oklch(0.201 0.022 301.1);
-      --popover: oklch(1 0 0);
-      --popover-foreground: oklch(0.201 0.022 301.1);
-      --primary: oklch(0.565 0.194 300.3);            /* the one violet */
-      --primary-foreground: oklch(1 0 0);
-      --secondary: oklch(0.973 0.005 95.1);           /* sunken paper */
-      --secondary-foreground: oklch(0.392 0.021 304.3);
-      --muted: oklch(0.973 0.005 95.1);
-      --muted-foreground: oklch(0.485 0.022 306.3);
-      --accent: oklch(0.946 0.027 304.8);             /* violet wash: hover, selected */
-      --accent-foreground: oklch(0.201 0.022 301.1);
-      --border: oklch(0.201 0.022 301.1 / 0.12);
-      --input: oklch(0.201 0.022 301.1 / 0.22);
-      --ring: oklch(0.565 0.194 300.3);
-      --radius: 0.625rem;
-      /* ECharts cannot parse oklch, so chart colors are hex. Violet first, fixed order. */
-      --chart-text: #5b5560;
-      --chart-grid: #e7e4e0;
-      --chart-cat-1: #7c4dce; --chart-cat-2: #1f9aa6; --chart-cat-3: #d9972b; --chart-cat-4: #d4527a;
-      --chart-cat-5: #3d7bd9; --chart-cat-6: #3f9d6b; --chart-cat-7: #dd7a3c; --chart-cat-8: #7d7785;
+      --bg: #ffffff; --bg-muted: #f6f8fa; --fg: #1f2328; --fg-muted: #59636e;
+      --border: #d1d9e0; --border-muted: #d1d9e0b3;
+      --accent: #0969da; --success: #1a7f37; --done: #8250df;
+      --control-hover: #eff2f5; --track: #eff2f5; --selected: #ffffff;
+      --shadow: 0 1px 0 #1f23280a;
+      --chart-grid: #e6eaef;
+      --on-accent: #ffffff;
+      color-scheme: light;
     }
     .dark {
-      --background: oklch(0.17 0.015 301);
-      --foreground: oklch(0.961 0.007 304.2);
-      --card: oklch(0.215 0.017 301);
-      --card-foreground: oklch(0.961 0.007 304.2);
-      --popover: oklch(0.245 0.018 301);
-      --popover-foreground: oklch(0.961 0.007 304.2);
-      --primary: oklch(0.7 0.16 300);
-      --primary-foreground: oklch(0.17 0.015 301);
-      --secondary: oklch(0.26 0.018 301);
-      --secondary-foreground: oklch(0.86 0.01 304);
-      --muted: oklch(0.26 0.018 301);
-      --muted-foreground: oklch(0.72 0.02 304);
-      --accent: oklch(0.32 0.05 301);
-      --accent-foreground: oklch(0.961 0.007 304.2);
-      --border: oklch(1 0 0 / 0.1);
-      --input: oklch(1 0 0 / 0.16);
-      --ring: oklch(0.7 0.16 300);
-      --chart-text: #b4aebb;
-      --chart-grid: #38333d;
-      --chart-cat-1: #a98af0; --chart-cat-2: #4cc3cf; --chart-cat-3: #f0b252; --chart-cat-4: #f07ea0;
-      --chart-cat-5: #7aa8f2; --chart-cat-6: #6cc496; --chart-cat-7: #f59a63; --chart-cat-8: #a39dab;
+      --bg: #0d1117; --bg-muted: #151b23; --fg: #f0f6fc; --fg-muted: #9198a1;
+      --border: #3d444d; --border-muted: #3d444db3;
+      --accent: #4493f8; --success: #3fb950; --done: #ab7df8;
+      --control-hover: #262c36; --track: #262c36; --selected: #2a313c;
+      --shadow: none;
+      --chart-grid: #262c36;
+      --on-accent: #0d1117;
+      color-scheme: dark;
     }
+    /* After both themes, so Basecoat's own .dark palette never wins over Primer's. */
+    :root, :root.dark {
+      --background: var(--bg); --foreground: var(--fg); --card: var(--bg); --card-foreground: var(--fg);
+      --popover: var(--bg); --popover-foreground: var(--fg); --primary: var(--accent);
+      --primary-foreground: var(--on-accent); --secondary: var(--bg-muted); --secondary-foreground: var(--fg);
+      --muted: var(--bg-muted); --muted-foreground: var(--fg-muted); --accent-foreground: var(--fg);
+      --input: var(--border); --ring: var(--accent); --radius: 6px;
+    }
+    /* Basecoat's --accent is its hover wash; Primer's --accent is blue. Keep the wash for the listbox. */
+    [role="listbox"] { --accent: var(--control-hover); }
 
-    /* Three sizes only (20, 14, 12px), one control height (32px), tabular numerals. */
     body {
-      font: 14px/20px "Inter Variable", Inter, system-ui, sans-serif;
+      font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
       font-variant-numeric: tabular-nums;
-      background: var(--background); color: var(--foreground);
-      margin: 0; padding: 24px; max-width: 1280px; margin-inline: auto;
+      background: var(--bg); color: var(--fg);
+      margin: 0 auto; padding: 24px 32px; max-width: 1280px;
     }
-    h1 { font-size: 20px; line-height: 28px; font-weight: 600; margin: 0; text-wrap: balance; }
-    .caption { font-size: 12px; line-height: 16px; color: var(--muted-foreground); }
-    .header { margin-bottom: 16px; }
-    .btn, .input { height: 32px; font-size: 14px; }
-    .button-group .btn[aria-pressed="true"] { background: var(--primary); color: var(--primary-foreground); }
-    .card { border-radius: 14px; box-shadow: none; position: relative; }
-    .card > header { padding-bottom: 0; }
-    .card h2 { font-size: 14px; line-height: 20px; font-weight: 600; }
+    h1 { font-size: 20px; line-height: 1.5; font-weight: 600; margin: 0; }
+    h2 { font-size: 14px; font-weight: 600; margin: 0; }
+    .muted { color: var(--fg-muted); font-size: 12px; }
 
-    /* Filter bar: one row, wraps on narrow screens. */
-    /* Basecoat's .card is a clipped column: make the bar a row and let combobox dropdowns overflow. */
-    .card.filters { flex-direction: row; flex-wrap: wrap; gap: 16px; align-items: flex-end;
-                    justify-content: flex-start; padding: 12px 16px; margin-bottom: 16px;
-                    overflow: visible; }
-    .field-group { display: flex; flex-direction: column; gap: 8px; }
-    .field-group > label { font-weight: 500; }
-    .date-range { display: flex; align-items: center; gap: 8px; }
-    .date-range .input { width: 9.5rem; }
-    .presets { display: flex; gap: 4px; }
+    /* Header */
+    .header { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px;
+              padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px solid var(--border-muted); }
+    .meta { display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+    .icon-btn { display: inline-grid; place-items: center; width: 28px; height: 28px; border: 0; border-radius: 6px;
+                background: transparent; color: var(--fg-muted); cursor: pointer; }
+    .icon-btn:hover { background: var(--control-hover); color: var(--fg); }
+    .icon-btn svg { width: 16px; height: 16px; fill: currentColor; }
+    .icon-btn.spinning svg { animation: spin 0.8s linear infinite; }
+
+    /* Toolbar: layer filter, active tokens, reset */
+    .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 16px; }
+    /* Basecoat wraps the multi-select input in .combobox-chips: that wrapper is the visible field. */
+    #layer-combobox .combobox-chips { min-height: 32px; padding: 2px 8px; gap: 4px; border: 1px solid var(--border);
+      border-radius: 6px; background: var(--bg-muted); box-shadow: none; transition: background 150ms, border-color 150ms; }
+    #layer-combobox .combobox-chips:focus-within { background: var(--bg); border-color: var(--accent);
+      box-shadow: inset 0 0 0 1px var(--accent); }
+    #layer-combobox input[role="combobox"] { height: 26px; font-size: 14px; border: 0; background: transparent; box-shadow: none; }
+    #layer-combobox [data-popover] { border: 1px solid var(--border); border-radius: 6px; background: var(--bg);
+      box-shadow: 0 8px 24px #1f23281f; }
+    .tokens { display: flex; flex-wrap: wrap; gap: 6px; }
+    .token { display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 8px; font: inherit; font-size: 12px;
+             font-weight: 500; border-radius: 999px; border: 1px solid var(--border); background: var(--bg-muted); color: var(--fg);
+             cursor: pointer; animation: pop 180ms ease-out; }
+    .token:hover { border-color: var(--fg-muted); }
+    .token .x { color: var(--fg-muted); }
     .spacer { flex: 1; }
+    .btn-invisible { height: 28px; padding: 0 8px; border: 0; border-radius: 6px; background: transparent;
+                     color: var(--accent); font: inherit; font-size: 12px; font-weight: 500; cursor: pointer; }
+    .btn-invisible:hover { background: var(--control-hover); }
 
-    .grid { display: grid; grid-template-columns: 1fr 2fr; gap: 16px; }
-    @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
-    .chart { height: 320px; }
-    .status { position: absolute; inset: 56px 16px 16px; display: none; align-items: center;
-              justify-content: center; background: color-mix(in oklab, var(--card) 85%, transparent); }
+    /* Box: Primer's bordered container with a muted header */
+    .box { position: relative; border: 1px solid var(--border); border-radius: 6px; background: var(--bg);
+           animation: rise 450ms cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(var(--i, 0) * 80ms); }
+    .box-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 48px;
+                  padding: 8px 16px; background: var(--bg-muted); border-bottom: 1px solid var(--border);
+                  border-radius: 6px 6px 0 0; }
+    .box-body { padding: 8px 16px 16px; }
+    .grid { display: grid; grid-template-columns: 2fr 3fr; gap: 16px; margin-top: 16px; }
+    .grid > * { min-width: 0; } /* let the charts shrink instead of pushing past the page */
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    .chart { height: 300px; }
+
+    /* Segmented control */
+    .segmented { display: inline-flex; padding: 2px; gap: 2px; border-radius: 6px; background: var(--track); }
+    .segmented button { height: 24px; padding: 0 10px; border: 1px solid transparent; border-radius: 5px; background: transparent;
+                        color: var(--fg-muted); font: inherit; font-size: 12px; cursor: pointer;
+                        transition: background 150ms, color 150ms, box-shadow 150ms; }
+    .segmented button:hover { color: var(--fg); }
+    .segmented button[aria-pressed="true"] { background: var(--selected); color: var(--fg); font-weight: 600;
+                                              border-color: var(--border); box-shadow: var(--shadow); }
+
+    /* Scorecard table */
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th, .data-table td { padding: 8px 16px; text-align: right; white-space: nowrap; }
+    .data-table th:first-child, .data-table td:first-child { text-align: left; }
+    .data-table th { font-size: 12px; font-weight: 600; color: var(--fg-muted); cursor: pointer; user-select: none;
+                     border-bottom: 1px solid var(--border); }
+    .data-table th:hover, .data-table th[aria-sort] { color: var(--fg); }
+    .data-table th .arrow { color: var(--accent); }
+    .data-table td { border-top: 1px solid var(--border-muted); }
+    .data-table tbody tr:first-child td { border-top: 0; }
+    .data-table tbody tr { cursor: pointer; transition: opacity 200ms, background 120ms; }
+    .data-table tbody tr:hover { background: var(--bg-muted); }
+    .data-table tbody tr.dim { opacity: 0.35; }
+    .data-table tbody tr.selected td:first-child { box-shadow: inset 2px 0 0 var(--accent); }
+    .enter tr { animation: rise 380ms cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(var(--r) * 35ms); }
+    .tool { font-weight: 600; }
+    .label { display: inline-block; margin-left: 6px; padding: 0 7px; font-size: 12px; font-weight: 500; line-height: 18px;
+             border: 1px solid var(--border); border-radius: 999px; color: var(--fg-muted); }
+    .meter { display: inline-block; width: 56px; height: 8px; margin-right: 8px; vertical-align: middle;
+             border-radius: 6px; background: var(--track); overflow: hidden; }
+    .meter > span { display: block; height: 100%; width: var(--v); background: var(--success); border-radius: 6px;
+                    transform-origin: left; animation: grow 700ms cubic-bezier(.2, .8, .2, 1) both;
+                    animation-delay: calc(var(--r) * 35ms + 150ms); }
+
+    #trend-note { min-height: 18px; }
+    details.notes { margin-top: 16px; color: var(--fg-muted); font-size: 12px; }
+    details.notes summary { cursor: pointer; width: fit-content; }
+    details.notes ul { margin: 8px 0 0; padding-left: 20px; }
+
+    /* Loading, empty and error states over a box body */
+    .status { position: absolute; inset: 49px 0 0; display: none; align-items: center; justify-content: center;
+              padding: 16px; background: color-mix(in srgb, var(--bg) 85%, transparent); border-radius: 0 0 6px 6px; }
     .status.visible { display: flex; }
     .status > * { width: 100%; }
-    .status .skeleton { height: 100%; border-radius: 10px; }
-    .status .empty { text-align: center; color: var(--muted-foreground); }
-  
-  <style>
-    .grid { grid-template-columns: 2fr 3fr; }
-    table.table { width: 100%; }
-    table.table th, table.table td { font-size: 12px; padding: 6px 8px; text-align: right; white-space: nowrap; }
-    table.table th:first-child, table.table td:first-child { text-align: left; }
-    table.table tr { cursor: pointer; }
-    table.table tr.dim { opacity: 0.35; }
-    .layer { color: var(--muted-foreground); font-size: 12px; }
-    .notes { margin-top: 16px; }
-    .notes li { margin-bottom: 4px; }
-    table.table th { cursor: pointer; user-select: none; }
-    table.table th[aria-sort="ascending"], table.table th[aria-sort="descending"] { color: var(--primary); }
-    .freshness { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
-    .freshness .btn { height: 24px; font-size: 12px; padding: 0 8px; }
-    .chips { display: flex; flex-wrap: wrap; gap: 6px; align-self: center; }
-    .chips .btn { height: 28px; font-size: 12px; border-style: dashed; }
-    #trend-note { min-height: 16px; margin-top: 4px; }
-</style>
+    .status .skeleton { height: 100%; border-radius: 6px;
+      background: linear-gradient(90deg, var(--bg-muted) 25%, var(--track) 50%, var(--bg-muted) 75%) 0 0 / 200% 100%;
+      animation: shimmer 1.2s linear infinite; }
+    .status .empty { text-align: center; color: var(--fg-muted); }
+
+    @keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+    @keyframes grow { from { transform: scaleX(0); } }
+    @keyframes pop { from { opacity: 0; transform: scale(0.9); } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes shimmer { to { background-position: -200% 0; } }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+  </style>
 </head>
 <body>
   <div class="header">
-    <h1>How healthy are open-source data tools?</h1>
-    <div class="caption">GitHub activity for the last 365 days. Click a tool to filter the trend. Click a trend bar to see its issues.</div>
-    <div class="freshness"><span id="freshness" class="caption">Loading…</span>
-      <button id="refresh" class="btn" data-variant="ghost" type="button" title="Re-run every query, skipping the cache">Refresh</button></div>
+    <div>
+      <h1>How healthy are open-source data tools?</h1>
+      <div class="meta muted"><span id="freshness">Last 365 days</span>
+        <button id="refresh" class="icon-btn" type="button" title="Refresh data" aria-label="Refresh data">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z"/></svg>
+        </button>
+      </div>
+    </div>
   </div>
 
-  <div class="card filters" data-anfra-container="controls" data-anfra-label="Controls">
-    <div class="field-group" data-anfra-block="layer-picker" data-anfra-label="Layer" data-anfra-control="layer">
-      <label for="layer-input">Layer</label>
-      <div id="layer-combobox" class="combobox" style="width: 260px" data-auto-highlight="true">
-        <input id="layer-input" type="text" role="combobox" placeholder="All layers" autocomplete="off"
+  <div class="toolbar" data-anfra-container="controls" data-anfra-label="Controls">
+    <div data-anfra-block="layer-picker" data-anfra-label="Layer" data-anfra-control="layer">
+      <div id="layer-combobox" class="combobox" style="width: 240px" data-auto-highlight="true">
+        <input id="layer-input" type="text" role="combobox" placeholder="All layers" aria-label="Layer" autocomplete="off"
                autocorrect="off" spellcheck="false" aria-autocomplete="list" aria-expanded="false"
                aria-controls="layer-listbox">
         <div id="layer-popover" data-popover aria-hidden="true">
@@ -144,57 +181,58 @@
         <input type="hidden" name="layer" value="[]">
       </div>
     </div>
-    <div id="chips" class="chips"></div>
+    <div id="chips" class="tokens"></div>
     <div class="spacer"></div>
-    <button id="reset-all" class="btn" data-variant="ghost" type="button" hidden>Reset all</button>
+    <button id="reset-all" class="btn-invisible" type="button" hidden>Reset all</button>
   </div>
 
-  <div class="card" data-anfra-block="scorecard" data-anfra-label="Scorecard" style="margin-bottom:16px">
-    <header><h2 id="scorecard-title">Scorecard, fastest maintainer response first</h2></header>
-    <section style="overflow-x:auto"><div id="scorecard" data-anfra-query="scorecard"></div></section>
+  <div class="box" style="--i:0" data-anfra-block="scorecard" data-anfra-label="Scorecard">
+    <div class="box-header"><h2>Scorecard</h2><span class="muted">Click a tool to filter</span></div>
+    <div style="overflow-x:auto"><div id="scorecard" data-anfra-query="scorecard"></div></div>
     <div id="scorecard-status" class="status"></div>
   </div>
 
   <div class="grid" data-anfra-container="charts" data-anfra-label="Charts">
-    <section class="card" data-anfra-block="response" data-anfra-label="Median first response by tool">
-      <header><h2>Median first response (hours)</h2></header>
-      <section><div id="response" class="chart" data-anfra-query="scorecard"></div></section>
+    <section class="box" style="--i:1" data-anfra-block="response" data-anfra-label="Median first response by tool">
+      <div class="box-header"><h2>Median first response</h2></div>
+      <div class="box-body"><div id="response" class="chart" data-anfra-query="scorecard"></div></div>
       <div id="response-status" class="status"></div>
     </section>
-    <section class="card" data-anfra-block="trend" data-anfra-label="Issues over time">
-      <header style="display:flex;justify-content:space-between;align-items:center">
-        <h2>Issues opened and median first response</h2>
-        <div class="button-group" role="group" aria-label="Date grain" data-anfra-control="grain">
-          <button class="btn" data-variant="outline" type="button" data-grain="week">Week</button>
-          <button class="btn" data-variant="secondary" type="button" data-grain="month" aria-pressed="true">Month</button>
-          <button class="btn" data-variant="outline" type="button" data-grain="quarter">Quarter</button>
+    <section class="box" style="--i:2" data-anfra-block="trend" data-anfra-label="Issues over time">
+      <div class="box-header">
+        <h2>Issues and first response</h2>
+        <div class="segmented" role="group" aria-label="Date grain" data-anfra-control="grain">
+          <button type="button" data-grain="week" aria-pressed="false">Week</button>
+          <button type="button" data-grain="month" aria-pressed="true">Month</button>
+          <button type="button" data-grain="quarter" aria-pressed="false">Quarter</button>
         </div>
-      </header>
-      <section><div id="trend" class="chart" data-anfra-query="trend"></div>
-        <div id="trend-note" class="caption"></div></section>
+      </div>
+      <div class="box-body"><div id="trend" class="chart" data-anfra-query="trend" title="Click a bar to see its issues"></div>
+        <div id="trend-note" class="muted"></div></div>
       <div id="trend-status" class="status"></div>
     </section>
   </div>
 
-  <div class="card notes caption" data-anfra-block="definitions" data-anfra-label="Definitions">
-    <section>
-      <ul>
-        <li><b>Core team:</b> anyone who merged a pull request in the repo, or whom GitHub shows as an owner, member or collaborator. Everyone else is community. Bots (GitHub Apps and automation accounts) are left out.</li>
-        <li><b>First response:</b> hours from a community issue being opened to the first comment by the core team, read from the issue's first 10 comments. Issues with no such reply count in "Issues answered", not in the median.</li>
-        <li><b>Community PR share:</b> merged pull requests opened by the community, out of all merged pull requests not opened by bots.</li>
-        <li>Only issues and pull requests opened in the last 365 days count. Stars are today's count.</li>
-      </ul>
-    </section>
-  </div>
+  <details class="notes" data-anfra-block="definitions" data-anfra-label="Definitions">
+    <summary>How it's measured</summary>
+    <ul>
+      <li><b>Core team:</b> anyone who merged a pull request, or whom GitHub shows as an owner, member or collaborator. Bots are left out.</li>
+      <li><b>First response:</b> time from a community issue to the first core-team comment, within its first 10 comments.</li>
+      <li><b>Community PRs:</b> merged pull requests from the community, out of all merged pull requests not from bots.</li>
+      <li>Only issues and pull requests opened in the last 365 days count. Stars are today's count.</li>
+    </ul>
+  </details>
 
   <script>
     const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const applyTheme = () => document.documentElement.classList.toggle('dark', darkQuery.matches);
     applyTheme();
     function chartTheme () {
       const css = getComputedStyle(document.documentElement);
       const get = (n) => css.getPropertyValue(n).trim();
-      return { text: get('--chart-text'), grid: get('--chart-grid'), cat: [1,2,3,4,5,6,7,8].map((n) => get(`--chart-cat-${n}`)) };
+      return { text: get('--fg-muted'), fg: get('--fg'), grid: get('--chart-grid'), bg: get('--bg'), border: get('--border'),
+               accent: get('--accent'), success: get('--success'), done: get('--done') };
     }
 
     // ---- SDK wiring ----
@@ -240,7 +278,14 @@
     const fmtHours = (v) => { const n = num(v); if (n === null) return '–'; return n >= 48 ? `${(n / 24).toFixed(1)} d` : `${n.toFixed(1)} h`; };
     const pct = new Intl.NumberFormat(undefined, { style: 'percent', maximumFractionDigits: 1 });
     const int = new Intl.NumberFormat();
-    const fmtPct = (v) => v === null ? '–' : pct.format(Number(v));
+    const fmtPct = (v) => v === null || v === undefined ? '–' : pct.format(Number(v));
+    const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const fmtPeriod = (v, g) => {
+      const d = new Date(day(v) + 'T00:00:00Z'), y = String(d.getUTCFullYear()).slice(2);
+      if (g === 'quarter') return `Q${Math.floor(d.getUTCMonth() / 3) + 1} '${y}`;
+      if (g === 'week') return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`;
+      return `${MONTHS[d.getUTCMonth()]} '${y}`;
+    };
 
     // Dates as 'YYYY-MM-DD' strings in UTC, which compare correctly as text.
     let currentGrain = 'month';
@@ -273,8 +318,7 @@
         else if (code === 'unauthenticated') title.textContent = 'Sign in again to see this chart';
         else if (scope === 'server') {
           title.textContent = "Couldn't load this chart";
-          const retry = Object.assign(document.createElement('button'), { className: 'btn', type: 'button', textContent: 'Retry' });
-          retry.dataset.variant = 'outline';
+          const retry = Object.assign(document.createElement('button'), { className: 'btn-invisible', type: 'button', textContent: 'Retry' });
           retry.addEventListener('click', () => app.execute());
           detail.append(retry);
         } else { title.textContent = "Couldn't load this chart"; detail.textContent = message; }
@@ -292,54 +336,28 @@
       console.log(q.name, q.result.columns, q.result.rows[0], q.result.debug?.executedAql);
     }
 
-    const axis = (t) => ({ axisLabel: { color: t.text }, axisLine: { lineStyle: { color: t.grid } }, splitLine: { lineStyle: { color: t.grid } } });
+    const axis = (t) => ({ axisLabel: { color: t.text }, axisLine: { lineStyle: { color: t.grid } }, axisTick: { show: false },
+                           splitLine: { lineStyle: { color: t.grid } } });
+    const tooltip = (t, extra) => ({ backgroundColor: t.bg, borderColor: t.border, textStyle: { color: t.fg, fontSize: 12 },
+                                     extraCssText: 'border-radius:6px;box-shadow:0 8px 24px #1f23281f', ...extra });
+    const motion = (stagger) => calm ? { animation: false } : {
+      animation: true, animationDuration: 700, animationEasing: 'cubicOut',
+      animationDurationUpdate: 500, animationEasingUpdate: 'cubicInOut',
+      ...(stagger ? { animationDelay: (i) => i * 40 } : {}),
+    };
+    const FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif';
     let lastScorecard = null;
-
-    function renderScorecard () {
-      const rows = scorecard.result.rows;
-      const selected = new Set(scorecard.selectedRows);
-      const table = document.createElement('table');
-      table.className = 'table';
-      const head = document.createElement('tr');
-      for (const c of COLS) {
-        const th = document.createElement('th');
-        const on = sort && sort.field === c.key;
-        th.textContent = c.label + (on ? (sort.direction === 'asc' ? ' ▲' : ' ▼') : '');
-        th.tabIndex = 0;
-        th.title = `Sort by ${c.label.toLowerCase()}`;
-        if (on) th.setAttribute('aria-sort', sort.direction === 'asc' ? 'ascending' : 'descending');
-        th.addEventListener('click', () => sortBy(c));
-        th.addEventListener('keydown', (e) => { if (e.key === 'Enter') sortBy(c); });
-        head.append(th);
-      }
-      table.createTHead().append(head);
-      const tbody = document.createElement('tbody');
-      rows.forEach((row) => {
-        const tr = document.createElement('tr');
-        if (selected.size && !selected.has(row)) tr.className = 'dim';
-        const cells = [fmtHours(row.med_response), fmtPct(row.answered), fmtPct(row.community_share), fmtHours(row.med_merge), int.format(row.releases ?? 0), int.format(row.stars ?? 0)];
-        const first = document.createElement('td');
-        first.innerHTML = '<b></b> <span class="layer"></span>';
-        first.querySelector('b').textContent = row.tool;
-        first.querySelector('span').textContent = row.layer;
-        tr.append(first, ...cells.map((c) => Object.assign(document.createElement('td'), { textContent: c })));
-        tr.addEventListener('click', () => toggle(row));
-        tbody.append(tr);
-      });
-      table.append(tbody);
-      document.getElementById('scorecard').replaceChildren(table);
-    }
 
     // Sort runs on the server (setSort), so it stays right however many rows come back.
     // `first` is the direction a first click picks: the healthy end of each metric on top.
     const COLS = [
-      { key: 'tool', label: 'Tool', first: 'asc' },
-      { key: 'med_response', label: 'Median first response', first: 'asc' },
-      { key: 'answered', label: 'Issues answered', first: 'desc' },
-      { key: 'community_share', label: 'Community PR share', first: 'desc' },
-      { key: 'med_merge', label: 'Median time to merge', first: 'asc' },
-      { key: 'releases', label: 'Releases', first: 'desc' },
-      { key: 'stars', label: 'Stars', first: 'desc' },
+      { key: 'tool', label: 'Tool', first: 'asc', tip: 'Data stack layer in the label' },
+      { key: 'med_response', label: 'First response', first: 'asc', tip: 'Median time from a community issue to the first core-team reply' },
+      { key: 'answered', label: 'Answered', first: 'desc', tip: 'Community issues with a core-team reply in their first 10 comments' },
+      { key: 'community_share', label: 'Community PRs', first: 'desc', tip: 'Share of merged pull requests from outside the core team, bots excluded' },
+      { key: 'med_merge', label: 'Time to merge', first: 'asc', tip: 'Median time from opening to merging, bots excluded' },
+      { key: 'releases', label: 'Releases', first: 'desc', tip: 'Releases in the last 365 days' },
+      { key: 'stars', label: 'Stars', first: 'desc', tip: "Today's star count" },
     ];
     let sort = null; // null: the AQL's own order, fastest response first
     function sortBy (c) {
@@ -349,28 +367,71 @@
       app.execute();
     }
 
-    // "Data as of" the newest issue, plus when the trend query ran and whether it came from cache.
-    function renderFreshness () {
-      const latest = freshness.result?.rows[0]?.latest;
-      const d = trend.result?.debug;
-      const ran = d?.executedAt ? new Date(d.executedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : null;
-      const parts = [latest ? `Data as of ${day(latest)}` : 'Loading…'];
-      if (ran) parts.push(`queried at ${ran}`, d.fromCache ? 'from cache' : 'fresh from the database');
-      document.getElementById('freshness').textContent = parts.join(' · ');
+    function meterCell (v) {
+      const td = document.createElement('td');
+      const n = num(v);
+      td.innerHTML = '<span class="meter"><span></span></span><span></span>';
+      td.querySelector('.meter > span').style.setProperty('--v', `${Math.max(0, Math.min(1, n ?? 0)) * 100}%`);
+      td.lastChild.textContent = fmtPct(v);
+      return td;
     }
 
-    // One chip per active selection or sort, each with its own ×; the layer filter has its own × in the combobox.
-    function chip (text, onClear) {
-      const b = Object.assign(document.createElement('button'), { type: 'button', className: 'btn', textContent: `${text} ×`, title: 'Clear this one' });
-      b.dataset.variant = 'outline';
+    function renderScorecard (fresh) {
+      const rows = scorecard.result.rows;
+      const selected = new Set(scorecard.selectedRows);
+      const table = document.createElement('table');
+      table.className = 'data-table';
+      const head = document.createElement('tr');
+      for (const c of COLS) {
+        const th = document.createElement('th');
+        const on = sort && sort.field === c.key;
+        th.textContent = c.label;
+        if (on) th.append(Object.assign(document.createElement('span'), { className: 'arrow', textContent: sort.direction === 'asc' ? ' ↑' : ' ↓' }));
+        th.tabIndex = 0;
+        th.title = `${c.tip}. Click to sort.`;
+        if (on) th.setAttribute('aria-sort', sort.direction === 'asc' ? 'ascending' : 'descending');
+        th.addEventListener('click', () => sortBy(c));
+        th.addEventListener('keydown', (e) => { if (e.key === 'Enter') sortBy(c); });
+        head.append(th);
+      }
+      table.createTHead().append(head);
+      const tbody = document.createElement('tbody');
+      if (fresh) tbody.className = 'enter';
+      rows.forEach((row, i) => {
+        const tr = document.createElement('tr');
+        tr.style.setProperty('--r', i);
+        if (selected.size) tr.className = selected.has(row) ? 'selected' : 'dim';
+        const first = document.createElement('td');
+        first.innerHTML = '<span class="tool"></span><span class="label"></span>';
+        first.querySelector('.tool').textContent = row.tool;
+        first.querySelector('.label').textContent = row.layer === 'Semantic layer and BI' ? 'BI' : row.layer;
+        const td = (text) => Object.assign(document.createElement('td'), { textContent: text });
+        tr.append(first, td(fmtHours(row.med_response)), meterCell(row.answered), meterCell(row.community_share),
+                  td(fmtHours(row.med_merge)), td(int.format(row.releases ?? 0)), td(int.format(row.stars ?? 0)));
+        tr.addEventListener('click', () => toggle(row));
+        tbody.append(tr);
+      });
+      table.append(tbody);
+      document.getElementById('scorecard').replaceChildren(table);
+    }
+
+    function renderFreshness () {
+      const latest = freshness.result?.rows[0]?.latest;
+      document.getElementById('freshness').textContent = latest
+        ? `Last 365 days · updated ${fmtDate(latest)}` : 'Last 365 days';
+    }
+    const fmtDate = (v) => { const d = new Date(day(v) + 'T00:00:00Z'); return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`; };
+
+    // One token per selected tool and for the sort, each clearing just that one.
+    function token (text, onClear) {
+      const b = Object.assign(document.createElement('button'), { type: 'button', className: 'token', title: 'Clear' });
+      b.append(text, Object.assign(document.createElement('span'), { className: 'x', textContent: '×' }));
       b.addEventListener('click', onClear);
       return b;
     }
     function renderChips () {
-      const chips = [];
-      const tools = scorecard.selectedRows.map((r) => r.tool);
-      if (tools.length) chips.push(chip(`Selected: ${tools.join(', ')}`, () => { app.clearSelection(); app.execute(); }));
-      if (sort) chips.push(chip(`Sorted by ${COLS.find((c) => c.key === sort.field).label.toLowerCase()}`, () => { sort = null; scorecard.setSort([]); app.execute(); }));
+      const chips = scorecard.selectedRows.map((r) => token(r.tool, () => toggle(r)));
+      if (sort) chips.push(token(`Sort: ${COLS.find((c) => c.key === sort.field).label}`, () => { sort = null; scorecard.setSort([]); app.execute(); }));
       document.getElementById('chips').replaceChildren(...chips);
       const layerOn = (layer.condition?.values ?? []).length > 0;
       document.getElementById('reset-all').hidden = !chips.length && !layerOn && currentGrain === 'month';
@@ -388,34 +449,35 @@
       renderStatus(trend, 'trend-status', 'No issues for this selection');
       renderFreshness();
       renderChips();
-      const sortCol = sort && COLS.find((c) => c.key === sort.field);
-      document.getElementById('scorecard-title').textContent = sortCol
-        ? `Scorecard, sorted by ${sortCol.label.toLowerCase()}` : 'Scorecard, fastest maintainer response first';
       logFirst(scorecard); logFirst(trend);
       if (typeof echarts === 'undefined') return;
       const t = chartTheme();
 
       if (scorecard.result) {
-        renderScorecard();
+        const fresh = lastScorecard !== scorecard.result;
+        renderScorecard(fresh);
         const rows = scorecard.result.rows;
         const selected = new Set(scorecard.selectedRows);
         const option = {
-          animation: false,
-          textStyle: { color: t.text },
-          grid: { left: 8, right: 24, top: 8, bottom: 8, containLabel: true },
-          tooltip: { valueFormatter: (v) => fmtHours(v) },
-          yAxis: { type: 'category', inverse: true, data: rows.map((r) => r.tool), ...axis(t) },
-          xAxis: { type: 'log', axisLabel: { color: t.text, formatter: (v) => `${Number(v).toLocaleString()} h` }, splitLine: axis(t).splitLine },
+          ...motion(true),
+          textStyle: { color: t.text, fontFamily: FONT },
+          grid: { left: 4, right: 32, top: 8, bottom: 4, containLabel: true },
+          tooltip: tooltip(t, { valueFormatter: (v) => fmtHours(v) }),
+          yAxis: { type: 'category', inverse: true, data: rows.map((r) => r.tool), ...axis(t),
+                   axisLabel: { color: t.fg, fontWeight: 600 } },
+          xAxis: { type: 'log', axisLabel: { color: t.text, formatter: (v) => `${Number(v).toLocaleString()} h` },
+                   splitLine: { lineStyle: { color: t.grid } } },
           series: [{
-            type: 'bar',
+            id: 'response', type: 'bar', barMaxWidth: 18, cursor: 'pointer',
+            emphasis: { itemStyle: { color: t.accent } },
             data: rows.map((r) => ({
               value: num(r.med_response) ?? '-',
-              itemStyle: { color: r.tool === 'anfra' ? t.cat[0] : t.cat[7], borderRadius: [0, 4, 4, 0], opacity: !selected.size || selected.has(r) ? 1 : 0.3 },
+              itemStyle: { color: t.accent, borderRadius: [0, 4, 4, 0], opacity: !selected.size || selected.has(r) ? 1 : 0.25 },
             })),
           }],
         };
-        if (lastScorecard !== scorecard.result) { responseChart.setOption(option, { replaceMerge: ['series'] }); lastScorecard = scorecard.result; }
-        else responseChart.setOption(option);
+        responseChart.setOption(option, fresh ? { replaceMerge: ['series'] } : undefined);
+        lastScorecard = scorecard.result;
       }
 
       if (trend.result) {
@@ -425,27 +487,28 @@
         const last = rows[rows.length - 1];
         const partial = latest && last && periodEnd(last.period, currentGrain) > day(latest);
         const note = document.getElementById('trend-note');
-        if (partial) {
-          const had = days(day(last.period), day(latest)), all = days(day(last.period), periodEnd(last.period, currentGrain));
-          note.textContent = `The last ${currentGrain} is incomplete: ${had} of ${all} days, data through ${day(latest)}. Its bar is faded so it doesn't read as a drop.`;
-        } else note.textContent = '';
+        note.textContent = partial
+          ? `${fmtPeriod(last.period, currentGrain)} so far: ${days(day(last.period), day(latest))} of ${days(day(last.period), periodEnd(last.period, currentGrain))} days`
+          : '';
         trendChart.setOption({
-          animation: false,
-          textStyle: { color: t.text },
-          legend: { textStyle: { color: t.text }, top: 0 },
-          grid: { left: 8, right: 8, top: 32, bottom: 8, containLabel: true },
-          tooltip: { trigger: 'axis' },
-          xAxis: { type: 'category', data: rows.map((r) => String(r.period).slice(0, 10)), ...axis(t) },
+          ...motion(true),
+          textStyle: { color: t.text, fontFamily: FONT },
+          legend: { textStyle: { color: t.text }, top: 0, right: 0, itemWidth: 12, itemHeight: 8, icon: 'roundRect' },
+          grid: { left: 4, right: 4, top: 32, bottom: 4, containLabel: true },
+          tooltip: tooltip(t, { trigger: 'axis' }),
+          xAxis: { type: 'category', data: rows.map((r) => fmtPeriod(r.period, currentGrain)), ...axis(t) },
           yAxis: [
-            { type: 'value', name: 'Issues', ...axis(t) },
-            { type: 'value', name: 'Hours', axisLabel: { color: t.text }, splitLine: { show: false } },
+            { type: 'value', ...axis(t) },
+            { type: 'value', axisLabel: { color: t.text, formatter: '{value} h' }, splitLine: { show: false } },
           ],
           series: [
-            { id: 'issues', name: 'Issues opened', type: 'bar', cursor: 'pointer', itemStyle: { color: t.cat[7], borderRadius: [4, 4, 0, 0] },
+            { id: 'issues', name: 'Issues', type: 'bar', cursor: 'pointer', barMaxWidth: 28,
+              itemStyle: { color: t.success, borderRadius: [4, 4, 0, 0] },
               data: rows.map((r) => ({ value: num(r.issues),
-                itemStyle: partial && r === last ? { opacity: 0.4, borderType: 'dashed', borderColor: t.text, borderWidth: 1 } : undefined })) },
-            { name: 'Median first response (h)', type: 'line', yAxisIndex: 1, showSymbol: false,
-              lineStyle: { color: t.cat[0], width: 2 }, itemStyle: { color: t.cat[0] }, data: rows.map((r) => num(r.med_response)) },
+                itemStyle: partial && r === last ? { opacity: 0.35, borderType: 'dashed', borderColor: t.success, borderWidth: 1 } : undefined })) },
+            { id: 'response', name: 'First response', type: 'line', yAxisIndex: 1, showSymbol: false, symbolSize: 6,
+              lineStyle: { color: t.done, width: 2 }, itemStyle: { color: t.done },
+              tooltip: { valueFormatter: (v) => fmtHours(v) }, data: rows.map((r) => num(r.med_response)) },
           ],
         }, { replaceMerge: ['series'] });
       }
@@ -474,14 +537,13 @@
       app.execute();
     });
 
+    function setGrainButtons (g) {
+      document.querySelectorAll('[data-grain]').forEach((o) => o.setAttribute('aria-pressed', String(o.dataset.grain === g)));
+    }
     document.querySelectorAll('[data-grain]').forEach((button) => {
       button.addEventListener('click', () => {
-        document.querySelectorAll('[data-grain]').forEach((o) => {
-          const on = o === button;
-          o.dataset.variant = on ? 'secondary' : 'outline';
-          o.setAttribute('aria-pressed', String(on));
-        });
         currentGrain = button.dataset.grain;
+        setGrainButtons(currentGrain);
         grain.setGrain(currentGrain);
         app.execute();
       });
@@ -495,17 +557,14 @@
       sort = null;
       for (const q of Object.values(app.queries)) q.setSort([]);
       currentGrain = 'month';
-      document.querySelectorAll('[data-grain]').forEach((o) => {
-        const on = o.dataset.grain === 'month';
-        o.dataset.variant = on ? 'secondary' : 'outline';
-        o.setAttribute('aria-pressed', String(on));
-      });
+      setGrainButtons('month');
       app.execute();
     });
 
-    document.getElementById('refresh').addEventListener('click', async (e) => {
-      e.currentTarget.disabled = true;
-      try { await app.refresh(); } finally { document.getElementById('refresh').disabled = false; }
+    const refreshBtn = document.getElementById('refresh');
+    refreshBtn.addEventListener('click', async () => {
+      refreshBtn.disabled = true; refreshBtn.classList.add('spinning');
+      try { await app.refresh(); } finally { refreshBtn.disabled = false; refreshBtn.classList.remove('spinning'); }
     });
 
     // Click (or right-click) a trend bar: anfra's menu offers "View underlying data" for its issues.
