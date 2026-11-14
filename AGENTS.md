@@ -12,3 +12,11 @@
 - Amp readback omits Ship and additional repositories; the local apply receipt does not prove their remote state. To reapply after hidden drift, unset only `agentInfrastructure.ampReceipt` in local Git config and rerun configuration; preserve `agentInfrastructure.ampProjectID` for recovery.
 - Keep secrets in 1Password. Local env files contain `op://` references only; resolve secrets at execution time.
 - Store transient evidence under `.amp/in/artifacts/`. Preserve unrelated work and runtime files.
+
+## This project
+
+- Stack: dlt (`ingest/`) → DuckDB `data/github.duckdb` → dbt (`transform/`) → anfra (`anfra/`). Run with `make ingest transform`, then `make serve`.
+- Python runs through `uv`. dbt runs from the repo root through `make transform`, with `transform/profiles.yml`.
+- Metrics live in `anfra/datasets/github_health.dataset.aml`. Change them there, never inside an app. Run `make validate` after any AML change.
+- A new tracked repo needs both `REPOS` in `ingest/github_pipeline.py` and a row in `transform/seeds/tool_layers.csv`.
+- The daily workflow writes to MotherDuck and needs the `MOTHERDUCK_TOKEN` repo secret.

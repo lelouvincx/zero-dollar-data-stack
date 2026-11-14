@@ -1,0 +1,13 @@
+Model fct_releases {
+  type: 'table'
+  label: 'Releases'
+  description: 'One row per release published in the last 365 days. Drafts are excluded.'
+  data_source_name: 'github'
+  table_name: 'marts.fct_releases'
+
+  dimension release_id { label: 'Release' type: 'text' primary_key: true description: 'owner/name@tag.' }
+  dimension repo_id { label: 'Repo' type: 'text' hidden: true }
+  dimension tag_name { label: 'Tag' type: 'text' }
+  dimension published_at { label: 'Published At' type: 'datetime' }
+  dimension is_prerelease { label: 'Is Prerelease' type: 'truefalse' }
+}

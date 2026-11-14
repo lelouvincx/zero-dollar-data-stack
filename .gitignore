@@ -9,3 +9,15 @@ credentials*
 *.pem
 *.key
 .DS_Store
+
+# zero-dollar-data-stack
+.venv/
+data/
+transform/target/
+transform/logs/
+transform/dbt_packages/
+transform/.user.yml
+*.duckdb
+*.duckdb.wal
+__pycache__/
+anfra/.anfra/data_sources.yml

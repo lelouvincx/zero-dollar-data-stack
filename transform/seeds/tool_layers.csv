@@ -1,0 +1,10 @@
+repo_id,tool,layer
+dlt-hub/dlt,dlt,Ingestion
+duckdb/duckdb,DuckDB,Storage
+dbt-labs/dbt,dbt,Transformation
+SQLMesh/sqlmesh,SQLMesh,Transformation
+holistics/anfra,anfra,Semantic layer and BI
+cube-js/cube,Cube,Semantic layer and BI
+evidence-dev/evidence,Evidence,Semantic layer and BI
+metabase/metabase,Metabase,Semantic layer and BI
+apache/superset,Superset,Semantic layer and BI

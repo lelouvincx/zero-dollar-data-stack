@@ -1,0 +1,23 @@
+Model fct_issues {
+  type: 'table'
+  label: 'Issues'
+  description: 'One row per issue opened in the last 365 days.'
+  data_source_name: 'github'
+  table_name: 'marts.fct_issues'
+
+  dimension issue_id { label: 'Issue' type: 'text' primary_key: true description: 'owner/name#number.' }
+  dimension repo_id { label: 'Repo' type: 'text' hidden: true }
+  dimension number { label: 'Number' type: 'number' }
+  dimension title { label: 'Title' type: 'text' }
+  dimension state { label: 'State' type: 'text' description: 'open or closed.' }
+  dimension opened_at { label: 'Opened At' type: 'datetime' }
+  dimension closed_at { label: 'Closed At' type: 'datetime' }
+  dimension author_login { label: 'Author' type: 'text' }
+  dimension author_type { label: 'Author Type' type: 'text' description: 'bot (a GitHub App or an automation account), core_team (someone who merged a PR in the repo, or a visible owner, member or collaborator), or community.' }
+  dimension first_response_at { label: 'First Maintainer Response At' type: 'datetime' }
+  dimension hours_to_first_response {
+    label: 'Hours to First Response'
+    type: 'number'
+    description: 'Hours from opening to the first comment by the core team that is not the author. Null when nobody on the core team replied within the first 10 comments.'
+  }
+}

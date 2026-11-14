@@ -1,0 +1,18 @@
+Model dim_repos {
+  type: 'table'
+  label: 'Repos'
+  description: 'One row per tracked GitHub repo, from its latest daily snapshot.'
+  data_source_name: 'github'
+  table_name: 'marts.dim_repos'
+
+  dimension repo_id { label: 'Repo' type: 'text' primary_key: true description: 'owner/name on GitHub.' }
+  dimension tool { label: 'Tool' type: 'text' }
+  dimension layer { label: 'Layer' type: 'text' description: 'The data stack layer the tool belongs to: Ingestion, Storage, Transformation, or Semantic layer and BI.' }
+  dimension owner { label: 'Owner' type: 'text' }
+  dimension url { label: 'URL' type: 'text' }
+  dimension language { label: 'Language' type: 'text' }
+  dimension license { label: 'License' type: 'text' }
+  dimension created_at { label: 'Repo Created At' type: 'datetime' }
+  dimension stars { label: 'Stars' type: 'number' description: 'Stars at the latest snapshot.' }
+  dimension forks { label: 'Forks' type: 'number' }
+}

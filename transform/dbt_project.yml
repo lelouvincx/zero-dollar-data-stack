@@ -1,0 +1,26 @@
+name: zero_dollar
+version: "1.0.0"
+profile: zero_dollar
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+target-path: target
+clean-targets: [target, dbt_packages]
+
+vars:
+  # Only issues and pull requests opened in this window count; older ones were loaded
+  # only because they were updated recently, so they are a biased sample.
+  lookback_days: 365
+
+models:
+  zero_dollar:
+    staging:
+      +schema: staging
+      +materialized: view
+    marts:
+      +schema: marts
+      +materialized: table
+
+seeds:
+  zero_dollar:
+    +schema: marts

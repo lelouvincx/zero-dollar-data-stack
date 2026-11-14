@@ -1,0 +1,21 @@
+name: Validate semantic layer
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install anfra
+        run: |
+          curl -fsSL https://anfra.ai/install.sh | bash
+          echo "$HOME/.anfra/bin" >> "$GITHUB_PATH"
+      - name: anfra validate
+        working-directory: anfra
+        run: |
+          cp .anfra/data_sources.yml.example .anfra/data_sources.yml
+          anfra validate

@@ -1,0 +1,13 @@
+# The data sources this repo's models query, by name.
+#
+# Locally, anfra reads the DuckDB file that `make ingest transform` builds. It has
+# no credentials, so this file is safe to commit; `anfra init` copies it to
+# data_sources.yml (git-ignored) on a fresh clone.
+#
+# To share apps on anfra Cloud, which can't read a DuckDB file, add the same
+# name there as a MotherDuck data source. Never commit a MotherDuck token.
+data_sources:
+  github:
+    type: duckdb
+    connection:
+      path: ../data/github.duckdb

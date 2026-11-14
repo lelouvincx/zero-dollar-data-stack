@@ -1,0 +1,518 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Data tool health</title>
+  <meta name="description" content="How healthy open-source data tools are to adopt: maintainer response time, community contributions and release cadence from 12 months of GitHub activity.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource-variable/inter@5.2.5/index.css"
+    integrity="sha384-ZTIcl2CmY0wyM9ANOhomBco7rEUIlWztf6lGcLKCocKUrIgGCsfisuZyE+hadW8K" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/basecoat-css@1.0.2/dist/basecoat.cdn.min.css"
+    integrity="sha384-XWKdrxzE2X33lI8Q03C9fIbqdLWV11whVNycR2/3bMNJY73EEQOa7rmN+SeiSCor" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/basecoat-css@1.0.2/dist/js/all.min.js"
+    integrity="sha384-rD2ZCuReXV7nIneJcn1lsTn6yOv87YARLQyUsemVAxrYYHdy5hcAW8XZEQxx87Dj" crossorigin="anonymous" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@6.1.0/dist/echarts.min.js"
+    integrity="sha384-C2iskrW/uPW46KzOjrvJIQo4YkV8lkD+QS0CrDN18IIPIpT/g2USu8bTP3nvmIAD" crossorigin="anonymous"></script>
+  <style>
+    /* anfra tokens (DESIGN.md) on Basecoat's variables. Light is from DESIGN.md; the dark values
+       are derived from it, since DESIGN.md only lists the light theme. */
+    :root {
+      --background: oklch(0.955 0.007 88.6);          /* paper: the page */
+      --foreground: oklch(0.201 0.022 301.1);         /* ink */
+      --card: oklch(1 0 0);                           /* white: panels */
+      --card-foreground: oklch(0.201 0.022 301.1);
+      --popover: oklch(1 0 0);
+      --popover-foreground: oklch(0.201 0.022 301.1);
+      --primary: oklch(0.565 0.194 300.3);            /* the one violet */
+      --primary-foreground: oklch(1 0 0);
+      --secondary: oklch(0.973 0.005 95.1);           /* sunken paper */
+      --secondary-foreground: oklch(0.392 0.021 304.3);
+      --muted: oklch(0.973 0.005 95.1);
+      --muted-foreground: oklch(0.485 0.022 306.3);
+      --accent: oklch(0.946 0.027 304.8);             /* violet wash: hover, selected */
+      --accent-foreground: oklch(0.201 0.022 301.1);
+      --border: oklch(0.201 0.022 301.1 / 0.12);
+      --input: oklch(0.201 0.022 301.1 / 0.22);
+      --ring: oklch(0.565 0.194 300.3);
+      --radius: 0.625rem;
+      /* ECharts cannot parse oklch, so chart colors are hex. Violet first, fixed order. */
+      --chart-text: #5b5560;
+      --chart-grid: #e7e4e0;
+      --chart-cat-1: #7c4dce; --chart-cat-2: #1f9aa6; --chart-cat-3: #d9972b; --chart-cat-4: #d4527a;
+      --chart-cat-5: #3d7bd9; --chart-cat-6: #3f9d6b; --chart-cat-7: #dd7a3c; --chart-cat-8: #7d7785;
+    }
+    .dark {
+      --background: oklch(0.17 0.015 301);
+      --foreground: oklch(0.961 0.007 304.2);
+      --card: oklch(0.215 0.017 301);
+      --card-foreground: oklch(0.961 0.007 304.2);
+      --popover: oklch(0.245 0.018 301);
+      --popover-foreground: oklch(0.961 0.007 304.2);
+      --primary: oklch(0.7 0.16 300);
+      --primary-foreground: oklch(0.17 0.015 301);
+      --secondary: oklch(0.26 0.018 301);
+      --secondary-foreground: oklch(0.86 0.01 304);
+      --muted: oklch(0.26 0.018 301);
+      --muted-foreground: oklch(0.72 0.02 304);
+      --accent: oklch(0.32 0.05 301);
+      --accent-foreground: oklch(0.961 0.007 304.2);
+      --border: oklch(1 0 0 / 0.1);
+      --input: oklch(1 0 0 / 0.16);
+      --ring: oklch(0.7 0.16 300);
+      --chart-text: #b4aebb;
+      --chart-grid: #38333d;
+      --chart-cat-1: #a98af0; --chart-cat-2: #4cc3cf; --chart-cat-3: #f0b252; --chart-cat-4: #f07ea0;
+      --chart-cat-5: #7aa8f2; --chart-cat-6: #6cc496; --chart-cat-7: #f59a63; --chart-cat-8: #a39dab;
+    }
+
+    /* Three sizes only (20, 14, 12px), one control height (32px), tabular numerals. */
+    body {
+      font: 14px/20px "Inter Variable", Inter, system-ui, sans-serif;
+      font-variant-numeric: tabular-nums;
+      background: var(--background); color: var(--foreground);
+      margin: 0; padding: 24px; max-width: 1280px; margin-inline: auto;
+    }
+    h1 { font-size: 20px; line-height: 28px; font-weight: 600; margin: 0; text-wrap: balance; }
+    .caption { font-size: 12px; line-height: 16px; color: var(--muted-foreground); }
+    .header { margin-bottom: 16px; }
+    .btn, .input { height: 32px; font-size: 14px; }
+    .button-group .btn[aria-pressed="true"] { background: var(--primary); color: var(--primary-foreground); }
+    .card { border-radius: 14px; box-shadow: none; position: relative; }
+    .card > header { padding-bottom: 0; }
+    .card h2 { font-size: 14px; line-height: 20px; font-weight: 600; }
+
+    /* Filter bar: one row, wraps on narrow screens. */
+    /* Basecoat's .card is a clipped column: make the bar a row and let combobox dropdowns overflow. */
+    .card.filters { flex-direction: row; flex-wrap: wrap; gap: 16px; align-items: flex-end;
+                    justify-content: flex-start; padding: 12px 16px; margin-bottom: 16px;
+                    overflow: visible; }
+    .field-group { display: flex; flex-direction: column; gap: 8px; }
+    .field-group > label { font-weight: 500; }
+    .date-range { display: flex; align-items: center; gap: 8px; }
+    .date-range .input { width: 9.5rem; }
+    .presets { display: flex; gap: 4px; }
+    .spacer { flex: 1; }
+
+    .grid { display: grid; grid-template-columns: 1fr 2fr; gap: 16px; }
+    @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
+    .chart { height: 320px; }
+    .status { position: absolute; inset: 56px 16px 16px; display: none; align-items: center;
+              justify-content: center; background: color-mix(in oklab, var(--card) 85%, transparent); }
+    .status.visible { display: flex; }
+    .status > * { width: 100%; }
+    .status .skeleton { height: 100%; border-radius: 10px; }
+    .status .empty { text-align: center; color: var(--muted-foreground); }
+  
+  <style>
+    .grid { grid-template-columns: 2fr 3fr; }
+    table.table { width: 100%; }
+    table.table th, table.table td { font-size: 12px; padding: 6px 8px; text-align: right; white-space: nowrap; }
+    table.table th:first-child, table.table td:first-child { text-align: left; }
+    table.table tr { cursor: pointer; }
+    table.table tr.dim { opacity: 0.35; }
+    .layer { color: var(--muted-foreground); font-size: 12px; }
+    .notes { margin-top: 16px; }
+    .notes li { margin-bottom: 4px; }
+    table.table th { cursor: pointer; user-select: none; }
+    table.table th[aria-sort="ascending"], table.table th[aria-sort="descending"] { color: var(--primary); }
+    .freshness { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+    .freshness .btn { height: 24px; font-size: 12px; padding: 0 8px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; align-self: center; }
+    .chips .btn { height: 28px; font-size: 12px; border-style: dashed; }
+    #trend-note { min-height: 16px; margin-top: 4px; }
+</style>
+</head>
+<body>
+  <div class="header">
+    <h1>How healthy are open-source data tools?</h1>
+    <div class="caption">GitHub activity for the last 365 days. Click a tool to filter the trend. Click a trend bar to see its issues.</div>
+    <div class="freshness"><span id="freshness" class="caption">Loading…</span>
+      <button id="refresh" class="btn" data-variant="ghost" type="button" title="Re-run every query, skipping the cache">Refresh</button></div>
+  </div>
+
+  <div class="card filters" data-anfra-container="controls" data-anfra-label="Controls">
+    <div class="field-group" data-anfra-block="layer-picker" data-anfra-label="Layer" data-anfra-control="layer">
+      <label for="layer-input">Layer</label>
+      <div id="layer-combobox" class="combobox" style="width: 260px" data-auto-highlight="true">
+        <input id="layer-input" type="text" role="combobox" placeholder="All layers" autocomplete="off"
+               autocorrect="off" spellcheck="false" aria-autocomplete="list" aria-expanded="false"
+               aria-controls="layer-listbox">
+        <div id="layer-popover" data-popover aria-hidden="true">
+          <div role="listbox" id="layer-listbox" aria-orientation="vertical" aria-multiselectable="true"
+               data-empty="No layers found."></div>
+        </div>
+        <input type="hidden" name="layer" value="[]">
+      </div>
+    </div>
+    <div id="chips" class="chips"></div>
+    <div class="spacer"></div>
+    <button id="reset-all" class="btn" data-variant="ghost" type="button" hidden>Reset all</button>
+  </div>
+
+  <div class="card" data-anfra-block="scorecard" data-anfra-label="Scorecard" style="margin-bottom:16px">
+    <header><h2 id="scorecard-title">Scorecard, fastest maintainer response first</h2></header>
+    <section style="overflow-x:auto"><div id="scorecard" data-anfra-query="scorecard"></div></section>
+    <div id="scorecard-status" class="status"></div>
+  </div>
+
+  <div class="grid" data-anfra-container="charts" data-anfra-label="Charts">
+    <section class="card" data-anfra-block="response" data-anfra-label="Median first response by tool">
+      <header><h2>Median first response (hours)</h2></header>
+      <section><div id="response" class="chart" data-anfra-query="scorecard"></div></section>
+      <div id="response-status" class="status"></div>
+    </section>
+    <section class="card" data-anfra-block="trend" data-anfra-label="Issues over time">
+      <header style="display:flex;justify-content:space-between;align-items:center">
+        <h2>Issues opened and median first response</h2>
+        <div class="button-group" role="group" aria-label="Date grain" data-anfra-control="grain">
+          <button class="btn" data-variant="outline" type="button" data-grain="week">Week</button>
+          <button class="btn" data-variant="secondary" type="button" data-grain="month" aria-pressed="true">Month</button>
+          <button class="btn" data-variant="outline" type="button" data-grain="quarter">Quarter</button>
+        </div>
+      </header>
+      <section><div id="trend" class="chart" data-anfra-query="trend"></div>
+        <div id="trend-note" class="caption"></div></section>
+      <div id="trend-status" class="status"></div>
+    </section>
+  </div>
+
+  <div class="card notes caption" data-anfra-block="definitions" data-anfra-label="Definitions">
+    <section>
+      <ul>
+        <li><b>Core team:</b> anyone who merged a pull request in the repo, or whom GitHub shows as an owner, member or collaborator. Everyone else is community. Bots (GitHub Apps and automation accounts) are left out.</li>
+        <li><b>First response:</b> hours from a community issue being opened to the first comment by the core team, read from the issue's first 10 comments. Issues with no such reply count in "Issues answered", not in the median.</li>
+        <li><b>Community PR share:</b> merged pull requests opened by the community, out of all merged pull requests not opened by bots.</li>
+        <li>Only issues and pull requests opened in the last 365 days count. Stars are today's count.</li>
+      </ul>
+    </section>
+  </div>
+
+  <script>
+    const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const applyTheme = () => document.documentElement.classList.toggle('dark', darkQuery.matches);
+    applyTheme();
+    function chartTheme () {
+      const css = getComputedStyle(document.documentElement);
+      const get = (n) => css.getPropertyValue(n).trim();
+      return { text: get('--chart-text'), grid: get('--chart-grid'), cat: [1,2,3,4,5,6,7,8].map((n) => get(`--chart-cat-${n}`)) };
+    }
+
+    // ---- SDK wiring ----
+    const DS = 'github_health';
+    const app = Anfra.createApp({ title: 'Data tool health' });
+
+    const scorecard = app.createQuery('scorecard', { dataset: DS, aql: `
+      explore {
+        dimensions { tool: dim_repos.tool, layer: dim_repos.layer }
+        measures {
+          med_response: median_first_response_hours,
+          answered: response_rate,
+          community_share: community_pr_share,
+          med_merge: median_hours_to_merge,
+          releases: release_count,
+          stars: total_stars
+        }
+        sorts { med_response asc }
+      }` });
+
+    // issues counts the model's field rather than the issue_count metric (same definition),
+    // because anfra's "View underlying data" is offered only for a measure on a model's field.
+    const trend = app.createQuery('trend', { dataset: DS, aql: `
+      explore {
+        dimensions { period: fct_issues.opened_at | month() }
+        measures { issues: count(fct_issues.issue_id), med_response: median_first_response_hours }
+        sorts { period asc }
+      }` });
+
+    // Newest issue across every tool: "data as of", and the end of the data for incomplete periods.
+    // Mapped to no control or selection, so a quiet tool doesn't make its own last month look unfinished.
+    const freshness = app.createQuery('freshness', { dataset: DS, aql: `
+      explore { measures { latest: fct_issues | max(fct_issues.opened_at) } }` });
+
+    const layer = app.createFilter('layer', { dataset: DS, field: 'dim_repos.layer' });
+    const grain = app.createDateDrill('grain', { default: 'month' });
+    app.mapControl(layer, scorecard, { field: 'dim_repos.layer' });
+    app.mapControl(layer, trend, { field: 'dim_repos.layer' });
+    app.mapControl(grain, trend, { field: 'fct_issues.opened_at' });
+    app.mapCrossFilter(scorecard, trend);
+
+    const num = (v) => v === null || v === undefined ? null : Number(v);
+    const fmtHours = (v) => { const n = num(v); if (n === null) return '–'; return n >= 48 ? `${(n / 24).toFixed(1)} d` : `${n.toFixed(1)} h`; };
+    const pct = new Intl.NumberFormat(undefined, { style: 'percent', maximumFractionDigits: 1 });
+    const int = new Intl.NumberFormat();
+    const fmtPct = (v) => v === null ? '–' : pct.format(Number(v));
+
+    // Dates as 'YYYY-MM-DD' strings in UTC, which compare correctly as text.
+    let currentGrain = 'month';
+    const day = (v) => String(v).slice(0, 10);
+    const days = (from, to) => Math.round((Date.parse(to) - Date.parse(from)) / 864e5) + 1;
+    function periodEnd (start, g) {
+      const d = new Date(day(start) + 'T00:00:00Z');
+      if (g === 'week') d.setUTCDate(d.getUTCDate() + 7);
+      else d.setUTCMonth(d.getUTCMonth() + (g === 'quarter' ? 3 : 1));
+      d.setUTCDate(d.getUTCDate() - 1);
+      return d.toISOString().slice(0, 10);
+    }
+
+    const responseChart = echarts.init(document.getElementById('response'));
+    const trendChart = echarts.init(document.getElementById('trend'));
+    const logged = new Set();
+
+    function renderStatus (query, id, emptyText) {
+      const el = document.getElementById(id);
+      el.replaceChildren();
+      if (query.state === 'executing' && !query.result) {
+        el.append(Object.assign(document.createElement('div'), { className: 'skeleton' }));
+      } else if (query.state === 'error') {
+        const { code, scope, message } = query.error;
+        const alert = Object.assign(document.createElement('div'), { className: 'alert' });
+        alert.dataset.variant = 'destructive';
+        const title = document.createElement('h2');
+        const detail = document.createElement('section');
+        if (code === 'forbidden') title.textContent = "You don't have access to this chart";
+        else if (code === 'unauthenticated') title.textContent = 'Sign in again to see this chart';
+        else if (scope === 'server') {
+          title.textContent = "Couldn't load this chart";
+          const retry = Object.assign(document.createElement('button'), { className: 'btn', type: 'button', textContent: 'Retry' });
+          retry.dataset.variant = 'outline';
+          retry.addEventListener('click', () => app.execute());
+          detail.append(retry);
+        } else { title.textContent = "Couldn't load this chart"; detail.textContent = message; }
+        alert.append(title, detail);
+        el.append(alert);
+      } else if (query.state === 'success' && query.result.rows.length === 0) {
+        el.append(Object.assign(document.createElement('div'), { className: 'empty', textContent: emptyText }));
+      }
+      el.classList.toggle('visible', el.childElementCount > 0);
+    }
+
+    function logFirst (q) {
+      if (q.state !== 'success' || logged.has(q.name)) return;
+      logged.add(q.name);
+      console.log(q.name, q.result.columns, q.result.rows[0], q.result.debug?.executedAql);
+    }
+
+    const axis = (t) => ({ axisLabel: { color: t.text }, axisLine: { lineStyle: { color: t.grid } }, splitLine: { lineStyle: { color: t.grid } } });
+    let lastScorecard = null;
+
+    function renderScorecard () {
+      const rows = scorecard.result.rows;
+      const selected = new Set(scorecard.selectedRows);
+      const table = document.createElement('table');
+      table.className = 'table';
+      const head = document.createElement('tr');
+      for (const c of COLS) {
+        const th = document.createElement('th');
+        const on = sort && sort.field === c.key;
+        th.textContent = c.label + (on ? (sort.direction === 'asc' ? ' ▲' : ' ▼') : '');
+        th.tabIndex = 0;
+        th.title = `Sort by ${c.label.toLowerCase()}`;
+        if (on) th.setAttribute('aria-sort', sort.direction === 'asc' ? 'ascending' : 'descending');
+        th.addEventListener('click', () => sortBy(c));
+        th.addEventListener('keydown', (e) => { if (e.key === 'Enter') sortBy(c); });
+        head.append(th);
+      }
+      table.createTHead().append(head);
+      const tbody = document.createElement('tbody');
+      rows.forEach((row) => {
+        const tr = document.createElement('tr');
+        if (selected.size && !selected.has(row)) tr.className = 'dim';
+        const cells = [fmtHours(row.med_response), fmtPct(row.answered), fmtPct(row.community_share), fmtHours(row.med_merge), int.format(row.releases ?? 0), int.format(row.stars ?? 0)];
+        const first = document.createElement('td');
+        first.innerHTML = '<b></b> <span class="layer"></span>';
+        first.querySelector('b').textContent = row.tool;
+        first.querySelector('span').textContent = row.layer;
+        tr.append(first, ...cells.map((c) => Object.assign(document.createElement('td'), { textContent: c })));
+        tr.addEventListener('click', () => toggle(row));
+        tbody.append(tr);
+      });
+      table.append(tbody);
+      document.getElementById('scorecard').replaceChildren(table);
+    }
+
+    // Sort runs on the server (setSort), so it stays right however many rows come back.
+    // `first` is the direction a first click picks: the healthy end of each metric on top.
+    const COLS = [
+      { key: 'tool', label: 'Tool', first: 'asc' },
+      { key: 'med_response', label: 'Median first response', first: 'asc' },
+      { key: 'answered', label: 'Issues answered', first: 'desc' },
+      { key: 'community_share', label: 'Community PR share', first: 'desc' },
+      { key: 'med_merge', label: 'Median time to merge', first: 'asc' },
+      { key: 'releases', label: 'Releases', first: 'desc' },
+      { key: 'stars', label: 'Stars', first: 'desc' },
+    ];
+    let sort = null; // null: the AQL's own order, fastest response first
+    function sortBy (c) {
+      const direction = sort && sort.field === c.key ? (sort.direction === 'asc' ? 'desc' : 'asc') : c.first;
+      sort = { field: c.key, direction };
+      scorecard.setSort(c.key === 'tool' ? [sort] : [sort, { field: 'tool', direction: 'asc' }]);
+      app.execute();
+    }
+
+    // "Data as of" the newest issue, plus when the trend query ran and whether it came from cache.
+    function renderFreshness () {
+      const latest = freshness.result?.rows[0]?.latest;
+      const d = trend.result?.debug;
+      const ran = d?.executedAt ? new Date(d.executedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : null;
+      const parts = [latest ? `Data as of ${day(latest)}` : 'Loading…'];
+      if (ran) parts.push(`queried at ${ran}`, d.fromCache ? 'from cache' : 'fresh from the database');
+      document.getElementById('freshness').textContent = parts.join(' · ');
+    }
+
+    // One chip per active selection or sort, each with its own ×; the layer filter has its own × in the combobox.
+    function chip (text, onClear) {
+      const b = Object.assign(document.createElement('button'), { type: 'button', className: 'btn', textContent: `${text} ×`, title: 'Clear this one' });
+      b.dataset.variant = 'outline';
+      b.addEventListener('click', onClear);
+      return b;
+    }
+    function renderChips () {
+      const chips = [];
+      const tools = scorecard.selectedRows.map((r) => r.tool);
+      if (tools.length) chips.push(chip(`Selected: ${tools.join(', ')}`, () => { app.clearSelection(); app.execute(); }));
+      if (sort) chips.push(chip(`Sorted by ${COLS.find((c) => c.key === sort.field).label.toLowerCase()}`, () => { sort = null; scorecard.setSort([]); app.execute(); }));
+      document.getElementById('chips').replaceChildren(...chips);
+      const layerOn = (layer.condition?.values ?? []).length > 0;
+      document.getElementById('reset-all').hidden = !chips.length && !layerOn && currentGrain === 'month';
+    }
+
+    function toggle (row) {
+      const sel = scorecard.selectedRows;
+      scorecard.select(sel.includes(row) ? sel.filter((r) => r !== row) : [...sel, row]);
+      app.execute();
+    }
+
+    function render () {
+      renderStatus(scorecard, 'scorecard-status', 'No tools for this layer');
+      renderStatus(scorecard, 'response-status', 'No tools for this layer');
+      renderStatus(trend, 'trend-status', 'No issues for this selection');
+      renderFreshness();
+      renderChips();
+      const sortCol = sort && COLS.find((c) => c.key === sort.field);
+      document.getElementById('scorecard-title').textContent = sortCol
+        ? `Scorecard, sorted by ${sortCol.label.toLowerCase()}` : 'Scorecard, fastest maintainer response first';
+      logFirst(scorecard); logFirst(trend);
+      if (typeof echarts === 'undefined') return;
+      const t = chartTheme();
+
+      if (scorecard.result) {
+        renderScorecard();
+        const rows = scorecard.result.rows;
+        const selected = new Set(scorecard.selectedRows);
+        const option = {
+          animation: false,
+          textStyle: { color: t.text },
+          grid: { left: 8, right: 24, top: 8, bottom: 8, containLabel: true },
+          tooltip: { valueFormatter: (v) => fmtHours(v) },
+          yAxis: { type: 'category', inverse: true, data: rows.map((r) => r.tool), ...axis(t) },
+          xAxis: { type: 'log', axisLabel: { color: t.text, formatter: (v) => `${Number(v).toLocaleString()} h` }, splitLine: axis(t).splitLine },
+          series: [{
+            type: 'bar',
+            data: rows.map((r) => ({
+              value: num(r.med_response) ?? '-',
+              itemStyle: { color: r.tool === 'anfra' ? t.cat[0] : t.cat[7], borderRadius: [0, 4, 4, 0], opacity: !selected.size || selected.has(r) ? 1 : 0.3 },
+            })),
+          }],
+        };
+        if (lastScorecard !== scorecard.result) { responseChart.setOption(option, { replaceMerge: ['series'] }); lastScorecard = scorecard.result; }
+        else responseChart.setOption(option);
+      }
+
+      if (trend.result) {
+        const rows = trend.result.rows;
+        // Only the newest period can be unfinished: it is when the data ends before the period does.
+        const latest = freshness.result?.rows[0]?.latest;
+        const last = rows[rows.length - 1];
+        const partial = latest && last && periodEnd(last.period, currentGrain) > day(latest);
+        const note = document.getElementById('trend-note');
+        if (partial) {
+          const had = days(day(last.period), day(latest)), all = days(day(last.period), periodEnd(last.period, currentGrain));
+          note.textContent = `The last ${currentGrain} is incomplete: ${had} of ${all} days, data through ${day(latest)}. Its bar is faded so it doesn't read as a drop.`;
+        } else note.textContent = '';
+        trendChart.setOption({
+          animation: false,
+          textStyle: { color: t.text },
+          legend: { textStyle: { color: t.text }, top: 0 },
+          grid: { left: 8, right: 8, top: 32, bottom: 8, containLabel: true },
+          tooltip: { trigger: 'axis' },
+          xAxis: { type: 'category', data: rows.map((r) => String(r.period).slice(0, 10)), ...axis(t) },
+          yAxis: [
+            { type: 'value', name: 'Issues', ...axis(t) },
+            { type: 'value', name: 'Hours', axisLabel: { color: t.text }, splitLine: { show: false } },
+          ],
+          series: [
+            { id: 'issues', name: 'Issues opened', type: 'bar', cursor: 'pointer', itemStyle: { color: t.cat[7], borderRadius: [4, 4, 0, 0] },
+              data: rows.map((r) => ({ value: num(r.issues),
+                itemStyle: partial && r === last ? { opacity: 0.4, borderType: 'dashed', borderColor: t.text, borderWidth: 1 } : undefined })) },
+            { name: 'Median first response (h)', type: 'line', yAxisIndex: 1, showSymbol: false,
+              lineStyle: { color: t.cat[0], width: 2 }, itemStyle: { color: t.cat[0] }, data: rows.map((r) => num(r.med_response)) },
+          ],
+        }, { replaceMerge: ['series'] });
+      }
+    }
+
+    app.subscribe(render);
+    darkQuery.addEventListener('change', () => { applyTheme(); render(); });
+
+    responseChart.on('click', (p) => toggle(scorecard.result.rows[p.dataIndex]));
+
+    const layerBox = document.getElementById('layer-combobox');
+    const layerList = document.getElementById('layer-listbox');
+    const domReady = document.readyState === 'loading'
+      ? new Promise((r) => document.addEventListener('DOMContentLoaded', r)) : Promise.resolve();
+    Promise.all([layer.loadOptions(), domReady]).then(([options]) => {
+      layerList.replaceChildren(...options.map((v) => {
+        const o = document.createElement('div');
+        o.setAttribute('role', 'option'); o.dataset.value = String(v); o.textContent = String(v);
+        return o;
+      }));
+      layerBox.refresh();
+    }).catch((err) => console.error('Could not load layer options', err));
+    layerBox.addEventListener('change', (e) => {
+      layer.setCondition({ operator: 'is', values: Array.isArray(e.detail.value) ? e.detail.value : [] });
+      app.clearSelection(); // a selected tool outside the new layer would silently empty the trend
+      app.execute();
+    });
+
+    document.querySelectorAll('[data-grain]').forEach((button) => {
+      button.addEventListener('click', () => {
+        document.querySelectorAll('[data-grain]').forEach((o) => {
+          const on = o === button;
+          o.dataset.variant = on ? 'secondary' : 'outline';
+          o.setAttribute('aria-pressed', String(on));
+        });
+        currentGrain = button.dataset.grain;
+        grain.setGrain(currentGrain);
+        app.execute();
+      });
+    });
+
+    // Reset all: the same view as a fresh page load.
+    document.getElementById('reset-all').addEventListener('click', () => {
+      for (const c of Object.values(app.controls)) c.reset();
+      layerBox.clear();
+      app.clearSelection();
+      sort = null;
+      for (const q of Object.values(app.queries)) q.setSort([]);
+      currentGrain = 'month';
+      document.querySelectorAll('[data-grain]').forEach((o) => {
+        const on = o.dataset.grain === 'month';
+        o.dataset.variant = on ? 'secondary' : 'outline';
+        o.setAttribute('aria-pressed', String(on));
+      });
+      app.execute();
+    });
+
+    document.getElementById('refresh').addEventListener('click', async (e) => {
+      e.currentTarget.disabled = true;
+      try { await app.refresh(); } finally { document.getElementById('refresh').disabled = false; }
+    });
+
+    // Click (or right-click) a trend bar: anfra's menu offers "View underlying data" for its issues.
+    trendChart.on('click', (p) => { if (p.seriesId === 'issues') trend.menu(p.event.event, trend.result.rows[p.dataIndex], { measure: 'issues' }); });
+    trendChart.on('contextmenu', (p) => { if (p.seriesId === 'issues') trend.menu(p.event.event, trend.result.rows[p.dataIndex], { measure: 'issues' }); });
+    window.addEventListener('resize', () => { responseChart.resize(); trendChart.resize(); });
+    app.execute();
+  </script>
+</body>
+</html>

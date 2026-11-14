@@ -1,0 +1,12 @@
+version: 2
+sources:
+  - name: raw_github
+    description: Loaded by ingest/github_pipeline.py (dlt).
+    tables:
+      - name: repos
+        description: One row per repo per pipeline run.
+      - name: issues
+      - name: issues__comments
+        description: The first 10 comments of each issue, nested by dlt.
+      - name: pull_requests
+      - name: releases

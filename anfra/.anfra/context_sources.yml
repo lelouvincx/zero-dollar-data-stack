@@ -1,0 +1,9 @@
+# What anfra ingest reads into the local catalog that anfra search searches.
+sources:
+  - name: aml
+    type: aml
+    path: ..
+  # The dbt project: anfra reads target/manifest.json, so run `dbt compile` first.
+  - name: dbt
+    type: dbt
+    local: { path: ../transform }

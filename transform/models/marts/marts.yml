@@ -1,0 +1,47 @@
+version: 2
+
+models:
+  - name: dim_repos
+    description: One row per tracked repo, from its latest snapshot.
+    columns:
+      - name: repo_id
+        description: owner/name on GitHub.
+        data_tests: [unique, not_null]
+      - name: layer
+        description: The data stack layer the tool belongs to, from the tool_layers seed.
+
+  - name: fct_issues
+    description: One row per issue opened in the lookback window.
+    columns:
+      - name: issue_id
+        data_tests: [unique, not_null]
+      - name: repo_id
+        data_tests:
+          - relationships: {arguments: {to: ref('dim_repos'), field: repo_id}}
+      - name: author_type
+        description: bot (a GitHub App or a *[bot], *-bot or *automation* login), core_team (in stg_maintainers, someone who merged a PR or has a visible owner, member or collaborator role), or community.
+        data_tests:
+          - accepted_values: {arguments: {values: [core_team, community, bot]}}
+      - name: hours_to_first_response
+        description: Hours from opening to the first comment by the core team that isn't the author. Null when nobody on the core team replied within the first 10 comments.
+
+  - name: fct_pull_requests
+    description: One row per pull request opened in the lookback window.
+    columns:
+      - name: pull_request_id
+        data_tests: [unique, not_null]
+      - name: repo_id
+        data_tests:
+          - relationships: {arguments: {to: ref('dim_repos'), field: repo_id}}
+      - name: author_type
+        data_tests:
+          - accepted_values: {arguments: {values: [core_team, community, bot]}}
+
+  - name: fct_releases
+    description: One row per release published in the lookback window.
+    columns:
+      - name: release_id
+        data_tests: [unique, not_null]
+
+  - name: fct_repo_snapshots
+    description: One row per repo per day, the last snapshot of that day.

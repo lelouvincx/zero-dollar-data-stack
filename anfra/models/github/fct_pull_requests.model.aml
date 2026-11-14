@@ -1,0 +1,19 @@
+Model fct_pull_requests {
+  type: 'table'
+  label: 'Pull Requests'
+  description: 'One row per pull request opened in the last 365 days.'
+  data_source_name: 'github'
+  table_name: 'marts.fct_pull_requests'
+
+  dimension pull_request_id { label: 'Pull Request' type: 'text' primary_key: true description: 'owner/name#number.' }
+  dimension repo_id { label: 'Repo' type: 'text' hidden: true }
+  dimension number { label: 'Number' type: 'number' }
+  dimension title { label: 'Title' type: 'text' }
+  dimension state { label: 'State' type: 'text' description: 'open, closed or merged.' }
+  dimension opened_at { label: 'Opened At' type: 'datetime' }
+  dimension merged_at { label: 'Merged At' type: 'datetime' }
+  dimension is_merged { label: 'Is Merged' type: 'truefalse' }
+  dimension author_login { label: 'Author' type: 'text' }
+  dimension author_type { label: 'Author Type' type: 'text' description: 'bot (a GitHub App or an automation account), core_team (someone who merged a PR in the repo, or a visible owner, member or collaborator), or community.' }
+  dimension hours_to_merge { label: 'Hours to Merge' type: 'number' }
+}
