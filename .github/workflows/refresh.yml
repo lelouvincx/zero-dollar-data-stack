@@ -9,13 +9,12 @@ concurrency:
   group: refresh
   cancel-in-progress: false
 jobs:
-  refresh:
+  ingest:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
     env:
       TARGET: motherduck
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      MOTHERDUCK_TOKEN: ${{ secrets.MOTHERDUCK_TOKEN }}
       # dlt's MotherDuck destination: the database name and token.
       DESTINATION__MOTHERDUCK__CREDENTIALS__DATABASE: github
       DESTINATION__MOTHERDUCK__CREDENTIALS__PASSWORD: ${{ secrets.MOTHERDUCK_TOKEN }}
@@ -24,4 +23,15 @@ jobs:
       - uses: astral-sh/setup-uv@v6
       - run: uv sync
       - run: make ingest
+  transform:
+    needs: ingest
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      TARGET: motherduck
+      MOTHERDUCK_TOKEN: ${{ secrets.MOTHERDUCK_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync
       - run: make transform
