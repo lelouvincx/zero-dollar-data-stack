@@ -1,0 +1,14 @@
+Model fct_repo_snapshots {
+  type: 'table'
+  label: 'Repo Snapshots'
+  description: 'One row per repo per day: stars, forks and open work at the last snapshot of that day.'
+  data_source_name: 'github'
+  table_name: 'marts.fct_repo_snapshots'
+
+  dimension repo_id { label: 'Repo' type: 'text' hidden: true }
+  dimension snapshot_date { label: 'Snapshot Date' type: 'date' }
+  dimension stars { label: 'Stars' type: 'number' }
+  dimension forks { label: 'Forks' type: 'number' }
+  dimension open_issues { label: 'Open Issues' type: 'number' }
+  dimension open_pull_requests { label: 'Open Pull Requests' type: 'number' }
+}
