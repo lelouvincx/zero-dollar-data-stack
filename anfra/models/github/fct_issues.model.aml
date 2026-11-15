@@ -12,8 +12,7 @@ Model fct_issues {
   dimension state { label: 'State' type: 'text' description: 'open or closed.' }
   dimension opened_at { label: 'Opened At' type: 'datetime' }
   dimension closed_at { label: 'Closed At' type: 'datetime' }
-  dimension author_login { label: 'Author' type: 'text' }
-  dimension author_type { label: 'Author Type' type: 'text' description: 'bot (a GitHub App or an automation account), core_team (someone who merged a PR in the repo, or a visible owner, member or collaborator), or community.' }
+  dimension author_id { label: 'Author ID' type: 'text' hidden: true }
   dimension first_response_at { label: 'First Maintainer Response At' type: 'datetime' }
   dimension hours_to_first_response {
     label: 'Hours to First Response'

@@ -1,7 +1,7 @@
 Model dim_repos {
   type: 'table'
   label: 'Repos'
-  description: 'One row per tracked GitHub repo, from its latest daily snapshot.'
+  description: 'One row per tracked GitHub repo, Stars and forks are in Repo Snapshots.'
   data_source_name: 'github'
   table_name: 'marts.dim_repos'
 
@@ -13,6 +13,4 @@ Model dim_repos {
   dimension language { label: 'Language' type: 'text' }
   dimension license { label: 'License' type: 'text' }
   dimension created_at { label: 'Repo Created At' type: 'datetime' }
-  dimension stars { label: 'Stars' type: 'number' description: 'Stars at the latest snapshot.' }
-  dimension forks { label: 'Forks' type: 'number' }
 }

@@ -9,12 +9,25 @@ It cannot answer: download counts, usage, or anything before the 365-day window.
 Stars are a popularity signal only; prefer the response and contribution metrics.
 '''
   data_source_name: 'github'
-  models: [dim_repos, fct_issues, fct_pull_requests, fct_releases]
+  models: [dim_repos, dim_authors, fct_issues, fct_pull_requests, fct_releases, fct_repo_snapshots]
   relationships: [
     relationship(fct_issues.repo_id > dim_repos.repo_id, true),
     relationship(fct_pull_requests.repo_id > dim_repos.repo_id, true),
-    relationship(fct_releases.repo_id > dim_repos.repo_id, true)
+    relationship(fct_releases.repo_id > dim_repos.repo_id, true),
+    relationship(fct_repo_snapshots.repo_id > dim_repos.repo_id, true),
+    relationship(fct_issues.author_id > dim_authors.author_id, true),
+    relationship(fct_pull_requests.author_id > dim_authors.author_id, true),
+    relationship(dim_authors.repo_id > dim_repos.repo_id, true)
   ]
+
+  // Each repo's latest snapshot date, so total_stars reads one snapshot per repo.
+  dimension latest_snapshot_date {
+    model: dim_repos
+    label: 'Latest Snapshot Date'
+    type: 'date'
+    hidden: true
+    definition: @aql max(fct_repo_snapshots.snapshot_date) | dimensionalize(dim_repos.repo_id) ;;
+  }
 
   metric issue_count {
     label: 'Issues Opened'
@@ -26,13 +39,13 @@ Stars are a popularity signal only; prefer the response and contribution metrics
     label: 'Median First Response (hours)'
     type: 'number'
     description: 'Median hours from an issue being opened to the first comment by a maintainer. Only issues opened by people outside the core team count, and only those that got a reply.'
-    definition: @aql fct_issues | where(fct_issues.author_type == 'community') | median(fct_issues.hours_to_first_response) ;;
+    definition: @aql fct_issues | where(dim_authors.author_type == 'community') | median(fct_issues.hours_to_first_response) ;;
   }
   metric response_rate {
     label: 'Issues Answered by a Maintainer'
     type: 'number'
     description: 'Share of community issues that got a maintainer reply within their first 10 comments.'
-    definition: @aql (fct_issues | where(fct_issues.author_type == 'community') | count_if(fct_issues.first_response_at is not null)) * 1.0 / (fct_issues | where(fct_issues.author_type == 'community') | count(fct_issues.issue_id)) ;;
+    definition: @aql (fct_issues | where(dim_authors.author_type == 'community') | count_if(fct_issues.first_response_at is not null)) * 1.0 / (fct_issues | where(dim_authors.author_type == 'community') | count(fct_issues.issue_id)) ;;
     format: '#,##0.0%'
   }
   metric pr_count {
@@ -49,14 +62,14 @@ Stars are a popularity signal only; prefer the response and contribution metrics
     label: 'Community PR Share'
     type: 'number'
     description: 'Share of merged pull requests opened by people outside the core team. Bots are excluded from both sides.'
-    definition: @aql (fct_pull_requests | where(fct_pull_requests.author_type == 'community') | count_if(fct_pull_requests.is_merged)) * 1.0 / (fct_pull_requests | where(fct_pull_requests.author_type != 'bot') | count_if(fct_pull_requests.is_merged)) ;;
+    definition: @aql (fct_pull_requests | where(dim_authors.author_type == 'community') | count_if(fct_pull_requests.is_merged)) * 1.0 / (fct_pull_requests | where(dim_authors.author_type != 'bot') | count_if(fct_pull_requests.is_merged)) ;;
     format: '#,##0.0%'
   }
   metric median_hours_to_merge {
     label: 'Median Time to Merge (hours)'
     type: 'number'
     description: 'Median hours from opening to merging, for merged pull requests not opened by bots.'
-    definition: @aql fct_pull_requests | where(fct_pull_requests.author_type != 'bot') | median(fct_pull_requests.hours_to_merge) ;;
+    definition: @aql fct_pull_requests | where(dim_authors.author_type != 'bot') | median(fct_pull_requests.hours_to_merge) ;;
   }
   metric release_count {
     label: 'Releases'
@@ -67,7 +80,7 @@ Stars are a popularity signal only; prefer the response and contribution metrics
   metric total_stars {
     label: 'Stars'
     type: 'number'
-    description: 'Stars at the latest snapshot. Popularity only, not health.'
-    definition: @aql sum(dim_repos.stars) ;;
+    description: 'Stars at each repo\'s latest daily snapshot. Popularity only, not health.'
+    definition: @aql fct_repo_snapshots | where(fct_repo_snapshots.snapshot_date == dim_repos.latest_snapshot_date) | sum(fct_repo_snapshots.stars) ;;
   }
 }

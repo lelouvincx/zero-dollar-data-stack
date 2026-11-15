@@ -1,0 +1,12 @@
+Model dim_authors {
+  type: 'table'
+  label: 'Authors'
+  description: 'One row per repo and login, for every author of an issue or pull request in the last 365 days. The same login can be core team in one repo and community in another.'
+  data_source_name: 'github'
+  table_name: 'marts.dim_authors'
+
+  dimension author_id { label: 'Author ID' type: 'text' primary_key: true hidden: true description: 'repo_id/login.' }
+  dimension repo_id { label: 'Repo' type: 'text' hidden: true }
+  dimension login { label: 'Author' type: 'text' description: 'GitHub login. Deleted accounts show as ghost.' }
+  dimension author_type { label: 'Author Type' type: 'text' description: 'bot (a GitHub App or an automation account), core_team (someone who merged a PR in the repo, or a visible owner, member or collaborator), or community.' }
+}

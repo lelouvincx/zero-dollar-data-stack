@@ -13,7 +13,6 @@ Model fct_pull_requests {
   dimension opened_at { label: 'Opened At' type: 'datetime' }
   dimension merged_at { label: 'Merged At' type: 'datetime' }
   dimension is_merged { label: 'Is Merged' type: 'truefalse' }
-  dimension author_login { label: 'Author' type: 'text' }
-  dimension author_type { label: 'Author Type' type: 'text' description: 'bot (a GitHub App or an automation account), core_team (someone who merged a PR in the repo, or a visible owner, member or collaborator), or community.' }
+  dimension author_id { label: 'Author ID' type: 'text' hidden: true }
   dimension hours_to_merge { label: 'Hours to Merge' type: 'number' }
 }

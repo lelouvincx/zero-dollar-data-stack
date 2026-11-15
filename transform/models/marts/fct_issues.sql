@@ -25,8 +25,7 @@ select
     i.state,
     i.opened_at,
     i.closed_at,
-    i.author_login,
-    i.author_type,
+    i.repo_id || '/' || coalesce(i.author_login, 'ghost') as author_id,
     f.first_response_at,
     date_diff('minute', i.opened_at, f.first_response_at) / 60.0 as hours_to_first_response
 from issues i
