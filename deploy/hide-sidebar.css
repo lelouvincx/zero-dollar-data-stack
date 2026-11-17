@@ -1,0 +1,7 @@
+/* The site has one app, so drop anfra's app list and its toggle; the dashboard
+   takes the full width. Selectors match anfra 0.20.0's page shell: if an upgrade
+   renames them, the sidebar simply shows again. */
+nav[aria-label="Data Apps"],
+[data-testid="sidebar-toggle"] { display: none !important; }
+div:has(> nav[aria-label="Data Apps"]) { grid-template-columns: minmax(0, 1fr) !important; }
+[data-testid="viewer"] { margin-left: 0.5rem !important; }

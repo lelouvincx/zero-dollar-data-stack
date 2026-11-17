@@ -1,0 +1,20 @@
+# In front of anfra serve: the bare domain opens the dashboard, which is served
+# from start.sh's copy of anfra's page shell with the sidebar hidden.
+{
+	admin off
+	auto_https off
+}
+
+:7878 {
+	redir / /apps/zero-dollar-data-stack-github-health
+	handle /apps/zero-dollar-data-stack-github-health {
+		header Cache-Control no-store
+		header Content-Security-Policy "frame-ancestors 'none'"
+		root * /tmp/shell
+		rewrite * /index.html
+		file_server
+	}
+	handle {
+		reverse_proxy 127.0.0.1:7879
+	}
+}

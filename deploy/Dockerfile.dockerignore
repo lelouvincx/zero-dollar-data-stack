@@ -1,0 +1,6 @@
+*
+!anfra
+!deploy/start.sh
+!deploy/Caddyfile
+!deploy/hide-sidebar.css
+anfra/.anfra/data_sources.yml
