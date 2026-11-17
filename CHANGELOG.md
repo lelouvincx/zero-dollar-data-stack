@@ -4,6 +4,7 @@
 
 ### Changed
 
+- Serve the anfra dashboard publicly on Proto from a deploy/ image: anfra behind Caddy, / redirects to the dashboard, sidebar hidden. [#5](https://github.com/lelouvincx/zero-dollar-data-stack/pull/5)
 - Add the MIT license. [#4](https://github.com/lelouvincx/zero-dollar-data-stack/pull/4)
 - Rename the anfra app to zero-dollar-data-stack-github-health so it doesn't collide with later projects. [#3](https://github.com/lelouvincx/zero-dollar-data-stack/pull/3)
 - Model authors as a dimension: new dim_authors, facts keyed by author_id, and repo stars read from fct_repo_snapshots. [#2](https://github.com/lelouvincx/zero-dollar-data-stack/pull/2)
